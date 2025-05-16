@@ -1,0 +1,76 @@
+import java.awt.Color;
+import java.awt.geom.Point2D;
+
+public class Segmento {
+
+    private Point2D.Double p1;
+    private Point2D.Double p2;
+    private Color cor;
+
+    public Segmento(Point2D.Double p1, Point2D.Double p2, Color cor) {
+        this.p1 = p1;
+        this.p2 = p2;
+        this.cor = cor;
+    }
+
+    public Color getCor() {
+        return cor;
+    }
+
+    public Point2D.Double getP1() {
+        return p1;
+    }
+
+    public Point2D.Double getP2() {
+        return p2;
+    }
+
+    private double[] pontoParaVetor(Point2D.Double p) {
+        return new double[]{p.x, p.y, 1};
+    }
+
+    private Point2D.Double vetorParaPonto(double[] v) {
+        return new Point2D.Double(v[0], v[1]);
+    }
+
+    private void aplicarTransformacao(double[][] matriz) {
+        double[] v1 = pontoParaVetor(p1);
+        double[] v2 = pontoParaVetor(p2);
+
+        double[] r1 = Matriz.multiplicaPonto(v1, matriz);
+        double[] r2 = Matriz.multiplicaPonto(v2, matriz);
+
+        p1 = vetorParaPonto(r1);
+        p2 = vetorParaPonto(r2);
+    }
+
+    public void translacao10() {
+        double[][] T = {
+                {1, 0, 10},
+                {0, 1, 10},
+                {0, 0, 1}
+        };
+        aplicarTransformacao(T);
+    }
+
+    public void rotacao90() {
+        double rad = Math.toRadians(90);
+        double cos = Math.cos(rad);
+        double sin = Math.sin(rad);
+        double[][] R = {
+                {cos, -sin, 0},
+                {sin, cos, 0},
+                {0, 0, 1}
+        };
+        aplicarTransformacao(R);
+    }
+
+    public void escalaDobro() {
+        double[][] S = {
+                {2, 0, 0},
+                {0, 2, 0},
+                {0, 0, 1}
+        };
+        aplicarTransformacao(S);
+    }
+}
