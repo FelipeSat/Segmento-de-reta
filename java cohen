@@ -1,0 +1,91 @@
+import java.awt.geom.Point2D;
+
+public class CohenSutherland {
+
+    private static final int INSIDE = 0; // 0000
+    private static final int LEFT = 1;   // 0001
+    private static final int RIGHT = 2;  // 0010
+    private static final int BOTTOM = 4; // 0100
+    private static final int TOP = 8;    // 1000
+
+    private double xmin, ymin, xmax, ymax;
+
+    public CohenSutherland(double xmin, double ymin, double xmax, double ymax) {
+        this.xmin = xmin;
+        this.ymin = ymin;
+        this.xmax = xmax;
+        this.ymax = ymax;
+    }
+
+    private int calculaOutCode(double x, double y) {
+        int code = INSIDE;
+
+        if (x < xmin)
+            code |= LEFT;
+        else if (x > xmax)
+            code |= RIGHT;
+        if (y < ymin)
+            code |= BOTTOM;
+        else if (y > ymax)
+            code |= TOP;
+
+        return code;
+    }
+
+    public boolean recortarLinha(Point2D.Double p1, Point2D.Double p2) {
+        double x0 = p1.x;
+        double y0 = p1.y;
+        double x1 = p2.x;
+        double y1 = p2.y;
+
+        int outcode0 = calculaOutCode(x0, y0);
+        int outcode1 = calculaOutCode(x1, y1);
+
+        boolean aceita = false;
+
+        while (true) {
+            if ((outcode0 | outcode1) == 0) {
+                aceita = true;
+                break;
+            } else if ((outcode0 & outcode1) != 0) {
+                break;
+            } else {
+                double x, y;
+                int outcodeOut = (outcode0 != 0) ? outcode0 : outcode1;
+
+                if ((outcodeOut & TOP) != 0) {
+                    x = x0 + (x1 - x0) * (ymax - y0) / (y1 - y0);
+                    y = ymax;
+                } else if ((outcodeOut & BOTTOM) != 0) {
+                    x = x0 + (x1 - x0) * (ymin - y0) / (y1 - y0);
+                    y = ymin;
+                } else if ((outcodeOut & RIGHT) != 0) {
+                    y = y0 + (y1 - y0) * (xmax - x0) / (x1 - x0);
+                    x = xmax;
+                } else { // LEFT
+                    y = y0 + (y1 - y0) * (xmin - x0) / (x1 - x0);
+                    x = xmin;
+                }
+
+                if (outcodeOut == outcode0) {
+                    x0 = x;
+                    y0 = y;
+                    outcode0 = calculaOutCode(x0, y0);
+                } else {
+                    x1 = x;
+                    y1 = y;
+                    outcode1 = calculaOutCode(x1, y1);
+                }
+            }
+        }
+
+        if (aceita) {
+            p1.x = x0;
+            p1.y = y0;
+            p2.x = x1;
+            p2.y = y1;
+        }
+
+        return aceita;
+    }
+}
